@@ -42,6 +42,16 @@ ul {
         width: calc(100% / 8);
         height: 100%;
         background: #f0d9b5; }
+        .board-wrap .board .row .square:before {
+          content: "";
+          display: block;
+          position: absolute;
+          left: 0;
+          top: 0;
+          right: 0;
+          bottom: 0; }
+        .board-wrap .board .row .square.active:before {
+          background: rgba(255, 255, 0, 0.25); }
       .board-wrap .board .row:nth-child(odd) .square:nth-child(even), .board-wrap .board .row:nth-child(even) .square:nth-child(odd) {
         background: #b58863; }
   .board-wrap .piece {
