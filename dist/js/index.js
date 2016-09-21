@@ -2,7 +2,8 @@
 var board  = document.querySelector(".board"),
     size = 0,
     pieces = [],
-    types = ["rook", "knight", "bishop", "queen", "king", "pawn"];
+    types = ["rook", "knight", "bishop", "queen", "king", "pawn"],
+    mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 function addEvent(type, callback) {
     if (!this) return;
@@ -28,7 +29,7 @@ function removeEvent(type, callback) {
 
 function resize() {
     var dimensions = [Math.max(document.documentElement.clientWidth, window.innerWidth || 0), Math.max(document.documentElement.clientHeight, window.innerHeight || 0)];
-    size = parseFloat(board.clientWidth);
+    size = parseFloat(board.getBoundingClientRect().width);
     for (var i = pieces.length, p; p = pieces[-- i];) {
         p.update();
     }
@@ -42,10 +43,20 @@ function Piece(pos, type, color) {
     this.moved = false;
     this.element = element = document.createElement("div");
     this.element.className = "piece "+color+" "+type;
-    this.element.onmousedown = function(event) {
-        var offset = [event.offsetX, event.offsetY], pos, initTile, tile, lastTile;
-        var rect = board.getBoundingClientRect();
-        piece.element.classList.add("active");
+    function start(event) {
+        var rect = board.getBoundingClientRect(),
+            input, inputEnd, offset, pos, initTile, tile, lastTile;
+
+        if (mobile) {
+            offset = [size / 8 / 2, size / 8 / 2];
+            input = "touch";
+            inputEnd = "end";
+        } else {
+            offset = [event.offsetX, event.offsetY];
+            input = "mouse";
+            inputEnd = "up";
+        }
+
         function getPos(event) {
             return [event.pageX - rect.left, event.pageY - rect.top];
         }
@@ -75,16 +86,18 @@ function Piece(pos, type, color) {
             if (y < 0 || y > 7) y = null;
             return x !== null && y !== null ? board.children[y].children[x] : null;
         }
-        function mousemove(event) {
-            pos = getPos(event);
+
+        function move(event) {
             if (tile) {
                 if (!lastTile) lastTile = [];
                 lastTile[0] = tile[0];
                 lastTile[1] = tile[1];
             }
+            pos = getPos(event);
             tile = getTile();
             piece.pos[0] = (pos[0] - offset[0]) / (size / 8);
             piece.pos[1] = (pos[1] - offset[1]) / (size / 8);
+            // alert(piece.pos);
             piece.update();
             if (lastTile) {
                 if (tile[0] != lastTile[0] || tile[1] != lastTile[1]) {
@@ -93,12 +106,9 @@ function Piece(pos, type, color) {
                         friend     = null,
                         name;
                     if (lastSquare)
-                        lastSquare.classList.remove("active");
+                        lastSquare.classList.remove("active", "friend", "foe");
                     if (square) {
                         square.classList.add("active");
-                        square.classList.remove("friend");
-                        square.classList.remove("foe");
-
                         for (var i = pieces.length, p; p = pieces[-- i];) { // Iterate through pieces
                             if (p.pos[0] == tile[0] && p.pos[1] == tile[1]) { // If piece tile is already taken:
                                 friend = p.color === piece.color;
@@ -117,12 +127,13 @@ function Piece(pos, type, color) {
                     }
                 }
             }
+            event.preventDefault();
         }
-        function mouseup() {
-            removeEvent.call(document, "mousemove", mousemove);
-            removeEvent.call(document, "mouseup", mouseup);
+
+        function end(event) {
+            removeEvent.call(document, input + "move", move);
+            removeEvent.call(document, input + inputEnd, end);
             if (tile[0] !== null && tile[1] !== null) {
-                console.log(tile);
                 getSquare(tile).classList.remove("active");
                 for (var i = pieces.length, p; p = pieces[-- i];) { // Iterate through pieces
                     if (p.pos[0] == tile[0] && p.pos[1] == tile[1]) { // If piece tile is already taken:
@@ -144,14 +155,24 @@ function Piece(pos, type, color) {
             piece.element.classList.remove("active");
             piece.pos = tile;
             piece.update();
+            event.preventDefault();
         }
-        mousemove(event);
-        addEvent.call(document, "mousemove", mousemove);
-        addEvent.call(document, "mouseup", mouseup);
+
+        move(event);
+
+        addEvent.call(document, input + "move", move);
+        addEvent.call(document, input + inputEnd, end);
         initTile = tile;
-        console.log(tile);
         getSquare(tile).classList.add("active");
+        piece.element.classList.add("active");
+
+        event.preventDefault();
     }
+    addEvent.call(this.element, "touchstart", start);
+    addEvent.call(this.element, "mousedown",  start);
+    // this.element.ontouchstart = start;
+    // this.element.onmousedown = start;
+
     this.element.ondragstart = function() {
         return false;
     };

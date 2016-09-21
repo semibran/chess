@@ -5,6 +5,7 @@
 body {
   font: normal 0/1 sans-serif;
   overflow: hidden;
+  position: relative;
   background: black; }
 
 h1 {
@@ -18,7 +19,7 @@ ul {
 
 .board-wrap {
   display: table;
-  position: relative;
+  position: fixed;
   left: 50vw;
   top: 50vh;
   -webkit-transform: translate(-50%, -50%);
