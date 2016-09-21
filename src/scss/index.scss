@@ -61,9 +61,19 @@ ul {
                     top: 0;
                     right: 0;
                     bottom: 0;
+                    opacity: 0;
                 }
-                &.active:before {
-                    background: rgba(yellow, .25);
+                &.active {
+                    &:before {
+                        background: yellow;
+                        opacity: .25;
+                    }
+                    &.friend:before {
+                        background: red;
+                    }
+                    &.foe:before {
+                        background: lime;
+                    }
                 }
             }
             &:nth-child(odd) .square:nth-child(even), &:nth-child(even) .square:nth-child(odd) {

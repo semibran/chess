@@ -49,9 +49,15 @@ ul {
           left: 0;
           top: 0;
           right: 0;
-          bottom: 0; }
+          bottom: 0;
+          opacity: 0; }
         .board-wrap .board .row .square.active:before {
-          background: rgba(255, 255, 0, 0.25); }
+          background: yellow;
+          opacity: .25; }
+        .board-wrap .board .row .square.active.friend:before {
+          background: red; }
+        .board-wrap .board .row .square.active.foe:before {
+          background: lime; }
       .board-wrap .board .row:nth-child(odd) .square:nth-child(even), .board-wrap .board .row:nth-child(even) .square:nth-child(odd) {
         background: #b58863; }
   .board-wrap .piece {
