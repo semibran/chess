@@ -1,0 +1,132 @@
+$color-square-light: #f0d9b5;
+$color-square-dark: #b58863;
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font: normal 0/1 sans-serif;
+    overflow: hidden;
+    background: black;
+    // &.drag {
+    //     cursor: grabbing;
+    // }
+}
+
+h1 {
+    font-size: 2rem;
+}
+
+p {
+    font-size: 1rem;
+}
+
+ul {
+    list-style: none;
+}
+
+.board-wrap {
+    display: table;
+    position: relative;
+    left: 50vw;
+    top: 50vh;
+    transform: translate(-50%, -50%);
+    & canvas {
+        width: 100vh;
+        max-width: 100vw;
+    }
+    .board {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        .row {
+            position: relative;
+            height: calc(100% / 8);
+            display: block;
+            .square {
+                position: relative;
+                display: inline-block;
+                width: calc(100% / 8);
+                height: 100%;
+                background: $color-square-light;
+                // &:before {
+                //     content: "";
+                //     display: block;
+                //     position: absolute;
+                //     left: 0;
+                //     top: 0;
+                //     right: 0;
+                //     bottom: 0;
+                // }
+                // &:hover:before {
+                //     cursor: pointer;
+                //     background: rgba(yellow, .25);
+                // }
+            }
+            &:nth-child(odd) .square:nth-child(even), &:nth-child(even) .square:nth-child(odd) {
+                background: $color-square-dark;
+            }
+        }
+    }
+    .piece {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: calc(100% / 8);
+        height: calc(100% / 8);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        &:hover {
+            cursor: grab;
+        }
+        &.active {
+            cursor: grabbing;
+            z-index: 1;
+        }
+        &.white {
+            &.king {
+                background-image: url(../img/white-king.svg);
+            }
+            &.queen {
+                background-image: url(../img/white-queen.svg);
+            }
+            &.bishop {
+                background-image: url(../img/white-bishop.svg);
+            }
+            &.knight {
+                background-image: url(../img/white-knight.svg);
+            }
+            &.rook {
+                background-image: url(../img/white-rook.svg);
+            }
+            &.pawn {
+                background-image: url(../img/white-pawn.svg);
+            }
+        }
+        &.black {
+            &.king {
+                background-image: url(../img/black-king.svg);
+            }
+            &.queen {
+                background-image: url(../img/black-queen.svg);
+            }
+            &.bishop {
+                background-image: url(../img/black-bishop.svg);
+            }
+            &.knight {
+                background-image: url(../img/black-knight.svg);
+            }
+            &.rook {
+                background-image: url(../img/black-rook.svg);
+            }
+            &.pawn {
+                background-image: url(../img/black-pawn.svg);
+            }
+        }
+    }
+}

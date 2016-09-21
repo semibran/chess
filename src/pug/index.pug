@@ -1,0 +1,16 @@
+doctype
+html
+    head
+        title Chess
+        link(rel="stylesheet" type="text/css" href="css/index.css")
+    body
+        .board-wrap
+            canvas(width=1 height=1)
+            ul.board
+                -var y = 8;
+                while y --
+                    ul.row
+                        -var x = 8;
+                        while x --
+                            li.square
+        script(src="js/index.js")
