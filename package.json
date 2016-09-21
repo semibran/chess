@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Multiplayer chess app made with WebSockets.",
   "main": "server.js",
+  "repository": "git@github.com:GrandonBroseph/chess.git",
   "author": "Brandon Semilla <grandonbroseph+gh@gmail.com>",
   "license": "MIT",
   "devDependencies": {

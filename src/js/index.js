@@ -41,7 +41,7 @@ function Piece(pos, type, color) {
     this.element = element = document.createElement("div");
     this.element.className = "piece "+color+" "+type;
     this.element.onmousedown = function(event) {
-        var offset = [event.offsetX, event.offsetY], pos, tile;
+        var offset = [event.offsetX, event.offsetY], pos, initTile, tile, lastTile;
         var rect = board.getBoundingClientRect();
         piece.element.classList.add("active");
         function getPos(event) {
@@ -58,33 +58,59 @@ function Piece(pos, type, color) {
             } else {
                 posTemp = pos;
             }
-            return [Math.floor(posTemp[0] / (size / 8)), Math.floor(posTemp[1] / (size / 8))]
+            return [Math.floor(posTemp[0] / (size / 8)), Math.floor(posTemp[1] / (size / 8))];
+        }
+        function getSquare(x, y) {
+            if (x.constructor.name === "Array") {
+                y = x[1];
+                x = x[0];
+            }
+            return board.children[y].children[x];
         }
         function mousemove(event) {
             pos = getPos(event);
+            if (tile) {
+                if (!lastTile) lastTile = [];
+                lastTile[0] = tile[0];
+                lastTile[1] = tile[1];
+            }
             tile = getTile();
             piece.pos[0] = (pos[0] - offset[0]) / (size / 8);
             piece.pos[1] = (pos[1] - offset[1]) / (size / 8);
             piece.update();
+            console.log(lastTile);
+            if (lastTile) {
+                if (tile[0] != lastTile[0] || tile[1] != lastTile[1]) {
+                    getSquare(lastTile[0], lastTile[1]).classList.remove("active");
+                    getSquare(tile[0], tile[1]).classList.add("active");
+                }
+            }
         }
         function mouseup() {
             removeEvent.call(document, "mousemove", mousemove);
             removeEvent.call(document, "mouseup", mouseup);
-            for (var i = pieces.length, p; p = pieces[-- i];) {
-                if (p.pos[0] == tile[0] && p.pos[1] == tile[1]) {
-                    board.removeChild(p.element);
-                    pieces.splice(i, 1);
+            getSquare(tile[0], tile[1]).classList.remove("active");
+            for (var i = pieces.length, p; p = pieces[-- i];) { // Iterate through pieces
+                if (p.pos[0] == tile[0] && p.pos[1] == tile[1]) { // If piece tile is already taken:
+                    if (p.color !== piece.color) { // If piece is an enemy:
+                        // Capture the opposing piece.
+                        board.removeChild(p.element);
+                        pieces.splice(i, 1);
+                    } else {
+                        // Move is invalid; revert to initial tile
+                        tile = initTile;
+                    }
                     break;
                 }
             }
             piece.element.classList.remove("active");
             piece.pos = tile;
             piece.update();
-            // console.log(board.children[tile[0]].children[tile[1]]);
         }
         mousemove(event);
         addEvent.call(document, "mousemove", mousemove);
         addEvent.call(document, "mouseup", mouseup);
+        initTile = tile;
     }
     this.element.ondragstart = function() {
         return false;
