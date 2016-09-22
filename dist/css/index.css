@@ -1,9 +1,16 @@
+@import "https://fonts.googleapis.com/css?family=Roboto:300";
 * {
   margin: 0;
-  padding: 0; }
+  padding: 0;
+  font: normal 0/1 Roboto, sans-serif; }
+
+html, body, .board-wrap {
+  height: 100%; }
+
+html {
+  font-size: 1rem; }
 
 body {
-  font: normal 0/1 sans-serif;
   overflow: hidden;
   position: relative;
   background: black; }
@@ -17,87 +24,142 @@ p {
 ul {
   list-style: none; }
 
-.board-wrap {
+button {
+  box-sizing: border-box;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: black;
+  padding: 1rem 2rem;
+  border: 0;
+  -webkit-transition: .25s;
+  transition: .25s;
+  text-transform: uppercase;
+  outline-offset: 2px;
+  outline: 2px solid rgba(255, 255, 255, 0); }
+  button:hover {
+    cursor: pointer;
+    background: white; }
+  button:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5); }
+
+@-webkit-keyframes grow {
+  from {
+    -webkit-transform: scale(1);
+            transform: scale(1); }
+  to {
+    -webkit-transform: scale(1.5);
+            transform: scale(1.5); } }
+
+@keyframes grow {
+  from {
+    -webkit-transform: scale(1);
+            transform: scale(1); }
+  to {
+    -webkit-transform: scale(1.5);
+            transform: scale(1.5); } }
+
+.wrap {
   display: table;
-  position: fixed;
-  left: 50vw;
-  top: 50vh;
-  -webkit-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%); }
-  .board-wrap canvas {
-    width: 100vh;
-    max-width: 100vw; }
-  .board-wrap .board {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0; }
-    .board-wrap .board .row {
-      position: relative;
-      height: calc(100% / 8);
-      display: block; }
-      .board-wrap .board .row .square {
+  position: relative;
+  margin: 0 auto; }
+  .wrap .board-wrap {
+    position: relative; }
+    .wrap .board-wrap canvas {
+      height: 100vw;
+      max-height: calc(100vh - 80px); }
+    .wrap .board-wrap .board {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden; }
+      .wrap .board-wrap .board .row {
         position: relative;
-        display: inline-block;
+        height: calc(100% / 8);
+        display: block; }
+        .wrap .board-wrap .board .row .square {
+          position: relative;
+          display: inline-block;
+          width: calc(100% / 8);
+          height: 100%;
+          background: #f0d9b5; }
+          .wrap .board-wrap .board .row .square:before {
+            content: "";
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            -webkit-transition: .25s;
+            transition: .25s; }
+          .wrap .board-wrap .board .row .square.active:before {
+            background: rgba(255, 255, 0, 0.25); }
+          .wrap .board-wrap .board .row .square.active.friend:before {
+            background: transparent; }
+          .wrap .board-wrap .board .row .square.active.foe:before {
+            background: rgba(0, 255, 0, 0.25); }
+          .wrap .board-wrap .board .row .square .piece {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0; }
+            .wrap .board-wrap .board .row .square .piece:hover {
+              cursor: -webkit-grab;
+              cursor: grab; }
+        .wrap .board-wrap .board .row:nth-child(odd) .square:nth-child(even), .wrap .board-wrap .board .row:nth-child(even) .square:nth-child(odd) {
+          background: #b58863; }
+      .wrap .board-wrap .board > .piece {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: calc(100% / 8);
-        height: 100%;
-        background: #f0d9b5; }
-        .board-wrap .board .row .square:before {
-          content: "";
-          display: block;
-          position: absolute;
-          left: 0;
-          top: 0;
-          right: 0;
-          bottom: 0;
-          opacity: 0; }
-        .board-wrap .board .row .square.active:before {
-          background: yellow;
-          opacity: .25; }
-        .board-wrap .board .row .square.active.friend:before {
-          background: red; }
-        .board-wrap .board .row .square.active.foe:before {
-          background: lime; }
-      .board-wrap .board .row:nth-child(odd) .square:nth-child(even), .board-wrap .board .row:nth-child(even) .square:nth-child(odd) {
-        background: #b58863; }
-  .board-wrap .piece {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: calc(100% / 8);
-    height: calc(100% / 8);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover; }
-    .board-wrap .piece:hover {
-      cursor: -webkit-grab;
-      cursor: grab; }
-    .board-wrap .piece.active {
-      cursor: -webkit-grabbing;
-      cursor: grabbing;
-      z-index: 1; }
-    .board-wrap .piece.white.king {
-      background-image: url(../img/white-king.svg); }
-    .board-wrap .piece.white.queen {
-      background-image: url(../img/white-queen.svg); }
-    .board-wrap .piece.white.bishop {
-      background-image: url(../img/white-bishop.svg); }
-    .board-wrap .piece.white.knight {
-      background-image: url(../img/white-knight.svg); }
-    .board-wrap .piece.white.rook {
-      background-image: url(../img/white-rook.svg); }
-    .board-wrap .piece.white.pawn {
-      background-image: url(../img/white-pawn.svg); }
-    .board-wrap .piece.black.king {
-      background-image: url(../img/black-king.svg); }
-    .board-wrap .piece.black.queen {
-      background-image: url(../img/black-queen.svg); }
-    .board-wrap .piece.black.bishop {
-      background-image: url(../img/black-bishop.svg); }
-    .board-wrap .piece.black.knight {
-      background-image: url(../img/black-knight.svg); }
-    .board-wrap .piece.black.rook {
-      background-image: url(../img/black-rook.svg); }
-    .board-wrap .piece.black.pawn {
-      background-image: url(../img/black-pawn.svg); }
+        height: calc(100% / 8);
+        -webkit-transform: none;
+                transform: none; }
+        .wrap .board-wrap .board > .piece.active {
+          cursor: -webkit-grabbing;
+          cursor: grabbing;
+          z-index: 1;
+          -webkit-transform: scale(1.5);
+                  transform: scale(1.5);
+          -webkit-animation: grow .25s;
+                  animation: grow .25s; }
+        .wrap .board-wrap .board > .piece.transit {
+          -webkit-transition: .25s;
+          transition: .25s; }
+    .wrap .board-wrap .piece {
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover; }
+      .wrap .board-wrap .piece.white.king {
+        background-image: url(../img/white-king.svg); }
+      .wrap .board-wrap .piece.white.queen {
+        background-image: url(../img/white-queen.svg); }
+      .wrap .board-wrap .piece.white.bishop {
+        background-image: url(../img/white-bishop.svg); }
+      .wrap .board-wrap .piece.white.knight {
+        background-image: url(../img/white-knight.svg); }
+      .wrap .board-wrap .piece.white.rook {
+        background-image: url(../img/white-rook.svg); }
+      .wrap .board-wrap .piece.white.pawn {
+        background-image: url(../img/white-pawn.svg); }
+      .wrap .board-wrap .piece.black.king {
+        background-image: url(../img/black-king.svg); }
+      .wrap .board-wrap .piece.black.queen {
+        background-image: url(../img/black-queen.svg); }
+      .wrap .board-wrap .piece.black.bishop {
+        background-image: url(../img/black-bishop.svg); }
+      .wrap .board-wrap .piece.black.knight {
+        background-image: url(../img/black-knight.svg); }
+      .wrap .board-wrap .piece.black.rook {
+        background-image: url(../img/black-rook.svg); }
+      .wrap .board-wrap .piece.black.pawn {
+        background-image: url(../img/black-pawn.svg); }
+  .wrap footer {
+    padding: 1rem 0;
+    background: rgba(0, 0, 0, 0.5);
+    text-align: center; }
