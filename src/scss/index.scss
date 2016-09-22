@@ -15,12 +15,13 @@ html, body, .board-wrap {
 
 html {
     font-size: 1rem;
+    background: black;
 }
 
 body {
     overflow: hidden;
     position: relative;
-    background: black;
+    background: rgba($color-square-dark, .25);
 }
 
 h1 {
@@ -38,19 +39,20 @@ ul {
 button {
     box-sizing: border-box;
     font-size: 1rem;
-    background: rgba(white, .9);
-    color: black;
+    background: $color-square-dark;
+    color: white;
     padding: 1rem 2rem;
     border: 0;
     transition: .25s;
     text-transform: uppercase;
     outline-offset: 2px;
     outline: 2px solid rgba(white, 0);
-    &:hover {
-        cursor: pointer;
-        background: rgba(white, 1);
-    }
-    &:focus {
+    cursor: pointer;
+    // &:hover {
+    //
+    //     background: red;//$color-square-light;
+    // }
+    &:focus, &:active {
         outline: 2px solid rgba(white, .5);
     }
 }
@@ -135,6 +137,7 @@ button {
                 width: calc(100% / 8);
                 height: calc(100% / 8);
                 transform: none;
+                cursor: grab;
                 &.active {
                     cursor: grabbing;
                     z-index: 1;
@@ -146,55 +149,85 @@ button {
                 }
             }
         }
-        .piece {
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            &.white {
-                &.king {
-                    background-image: url(../img/white-king.svg);
-                }
-                &.queen {
-                    background-image: url(../img/white-queen.svg);
-                }
-                &.bishop {
-                    background-image: url(../img/white-bishop.svg);
-                }
-                &.knight {
-                    background-image: url(../img/white-knight.svg);
-                }
-                &.rook {
-                    background-image: url(../img/white-rook.svg);
-                }
-                &.pawn {
-                    background-image: url(../img/white-pawn.svg);
-                }
-            }
-            &.black {
-                &.king {
-                    background-image: url(../img/black-king.svg);
-                }
-                &.queen {
-                    background-image: url(../img/black-queen.svg);
-                }
-                &.bishop {
-                    background-image: url(../img/black-bishop.svg);
-                }
-                &.knight {
-                    background-image: url(../img/black-knight.svg);
-                }
-                &.rook {
-                    background-image: url(../img/black-rook.svg);
-                }
-                &.pawn {
-                    background-image: url(../img/black-pawn.svg);
-                }
-            }
-        }
     }
     footer {
-        padding: 1rem 0;
-        background: rgba(black, .5);
-        text-align: center;
+        position: relative;
+        width: 100%;
+        border-spacing: 2rem 1rem;
+        background: rgba(black, .25);
+        display: table;
+        .cell:nth-child(2) {
+            width: 100%;
+        }
+    }
+}
+
+.cell {
+    position: relative;
+    display: table-cell;
+    // vertical-align: middle;
+}
+
+.captured {
+    position: absolute;
+    .row {
+        table-layout: fixed;
+        overflow: hidden;
+        height: 20px;
+        &:not(:first-child) {
+            margin-top: 8px;
+        }
+        .piece {
+            width: 20px;
+            height: 20px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+    }
+}
+
+.piece {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    &.white {
+        &.king {
+            background-image: url(../img/white-king.svg);
+        }
+        &.queen {
+            background-image: url(../img/white-queen.svg);
+        }
+        &.bishop {
+            background-image: url(../img/white-bishop.svg);
+        }
+        &.knight {
+            background-image: url(../img/white-knight.svg);
+        }
+        &.rook {
+            background-image: url(../img/white-rook.svg);
+        }
+        &.pawn {
+            background-image: url(../img/white-pawn.svg);
+        }
+    }
+    &.black {
+        &.king {
+            background-image: url(../img/black-king.svg);
+        }
+        &.queen {
+            background-image: url(../img/black-queen.svg);
+        }
+        &.bishop {
+            background-image: url(../img/black-bishop.svg);
+        }
+        &.knight {
+            background-image: url(../img/black-knight.svg);
+        }
+        &.rook {
+            background-image: url(../img/black-rook.svg);
+        }
+        &.pawn {
+            background-image: url(../img/black-pawn.svg);
+        }
     }
 }

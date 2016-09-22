@@ -8,12 +8,13 @@ html, body, .board-wrap {
   height: 100%; }
 
 html {
-  font-size: 1rem; }
+  font-size: 1rem;
+  background: black; }
 
 body {
   overflow: hidden;
   position: relative;
-  background: black; }
+  background: rgba(181, 136, 99, 0.25); }
 
 h1 {
   font-size: 2rem; }
@@ -27,19 +28,17 @@ ul {
 button {
   box-sizing: border-box;
   font-size: 1rem;
-  background: rgba(255, 255, 255, 0.9);
-  color: black;
+  background: #b58863;
+  color: white;
   padding: 1rem 2rem;
   border: 0;
   -webkit-transition: .25s;
   transition: .25s;
   text-transform: uppercase;
   outline-offset: 2px;
-  outline: 2px solid rgba(255, 255, 255, 0); }
-  button:hover {
-    cursor: pointer;
-    background: white; }
-  button:focus {
+  outline: 2px solid rgba(255, 255, 255, 0);
+  cursor: pointer; }
+  button:focus, button:active {
     outline: 2px solid rgba(255, 255, 255, 0.5); }
 
 @-webkit-keyframes grow {
@@ -119,7 +118,9 @@ button {
         width: calc(100% / 8);
         height: calc(100% / 8);
         -webkit-transform: none;
-                transform: none; }
+                transform: none;
+        cursor: -webkit-grab;
+        cursor: grab; }
         .wrap .board-wrap .board > .piece.active {
           cursor: -webkit-grabbing;
           cursor: grabbing;
@@ -131,35 +132,58 @@ button {
         .wrap .board-wrap .board > .piece.transit {
           -webkit-transition: .25s;
           transition: .25s; }
-    .wrap .board-wrap .piece {
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover; }
-      .wrap .board-wrap .piece.white.king {
-        background-image: url(../img/white-king.svg); }
-      .wrap .board-wrap .piece.white.queen {
-        background-image: url(../img/white-queen.svg); }
-      .wrap .board-wrap .piece.white.bishop {
-        background-image: url(../img/white-bishop.svg); }
-      .wrap .board-wrap .piece.white.knight {
-        background-image: url(../img/white-knight.svg); }
-      .wrap .board-wrap .piece.white.rook {
-        background-image: url(../img/white-rook.svg); }
-      .wrap .board-wrap .piece.white.pawn {
-        background-image: url(../img/white-pawn.svg); }
-      .wrap .board-wrap .piece.black.king {
-        background-image: url(../img/black-king.svg); }
-      .wrap .board-wrap .piece.black.queen {
-        background-image: url(../img/black-queen.svg); }
-      .wrap .board-wrap .piece.black.bishop {
-        background-image: url(../img/black-bishop.svg); }
-      .wrap .board-wrap .piece.black.knight {
-        background-image: url(../img/black-knight.svg); }
-      .wrap .board-wrap .piece.black.rook {
-        background-image: url(../img/black-rook.svg); }
-      .wrap .board-wrap .piece.black.pawn {
-        background-image: url(../img/black-pawn.svg); }
   .wrap footer {
-    padding: 1rem 0;
-    background: rgba(0, 0, 0, 0.5);
-    text-align: center; }
+    position: relative;
+    width: 100%;
+    border-spacing: 2rem 1rem;
+    background: rgba(0, 0, 0, 0.25);
+    display: table; }
+    .wrap footer .cell:nth-child(2) {
+      width: 100%; }
+
+.cell {
+  position: relative;
+  display: table-cell; }
+
+.captured {
+  position: absolute; }
+  .captured .row {
+    table-layout: fixed;
+    overflow: hidden;
+    height: 20px; }
+    .captured .row:not(:first-child) {
+      margin-top: 8px; }
+    .captured .row .piece {
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+      vertical-align: middle; }
+
+.piece {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover; }
+  .piece.white.king {
+    background-image: url(../img/white-king.svg); }
+  .piece.white.queen {
+    background-image: url(../img/white-queen.svg); }
+  .piece.white.bishop {
+    background-image: url(../img/white-bishop.svg); }
+  .piece.white.knight {
+    background-image: url(../img/white-knight.svg); }
+  .piece.white.rook {
+    background-image: url(../img/white-rook.svg); }
+  .piece.white.pawn {
+    background-image: url(../img/white-pawn.svg); }
+  .piece.black.king {
+    background-image: url(../img/black-king.svg); }
+  .piece.black.queen {
+    background-image: url(../img/black-queen.svg); }
+  .piece.black.bishop {
+    background-image: url(../img/black-bishop.svg); }
+  .piece.black.knight {
+    background-image: url(../img/black-knight.svg); }
+  .piece.black.rook {
+    background-image: url(../img/black-rook.svg); }
+  .piece.black.pawn {
+    background-image: url(../img/black-pawn.svg); }
