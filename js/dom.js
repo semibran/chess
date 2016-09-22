@@ -4,12 +4,13 @@ module.exports = (function() {
     function addEvent(type, callback) {
         if (!this) return;
         if (this.addEventListener) {
-            this.addEventListener(type, callback, false);
+            this.addEventListener(type,  callback, false);
         } else if (this.attachEvent) {
             this.attachEvent("on" + type, callback);
         } else {
             this["on" + type] = callback;
         }
+        return callback;
     }
     function removeEvent(type, callback) {
         if (!this) return;

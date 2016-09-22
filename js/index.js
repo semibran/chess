@@ -6,7 +6,7 @@ module.exports = (function() {
         boardSize = 0,
         squareSize = 0,
         state = {
-            pieces: [],
+            pieces: null,
         },
         files = "abcdefgh",
         ranks = "12345678",
@@ -38,25 +38,50 @@ module.exports = (function() {
     }
 
     function Piece(pos, type, color) {
-        this.pos = pos;
-        this.square = getSquare(this.pos);
+        this.pos = null;
+        this.posInit = pos.clone();
+        this.square = null;
         this.type = type;
         this.color = color;
-        this.moved = false;
+        this.moved = null;
+        this.listener = null;
         this.element = element = document.createElement("div");
         this.element.className = "piece "+color+" "+type;
     }
 
     Piece.prototype = {
         init: function(){
-            var piece = this;
             state.pieces.push(this);
+            this.reset();
+            dom.addEvent.call(this.element, "dragstart",  function() {
+                return false;
+            }, this);
+            return this;
+        },
+        reset: function() {
+            this.moved = false;
+            this.pos = this.posInit.clone();
+            this.square = getSquare(this.pos);
+            if (this.element.parentNode)
+                this.element.parentNode.removeChild(this.element);
             this.square.appendChild(this.element);
-            function start(event) {
+            this.listen();
+            return this;
+        },
+        listen: function() {
+            var piece = this;
+            this.listener = function(event) {
                 var rect = board.getBoundingClientRect(),
                     input, inputEnd, offset, pos, initTile, tile, lastTile;
 
-                if (!piece.element.classList.contains("active") && !piece.element.classList.contains("transit")) {
+                // console.log("Click!");
+
+                if (!piece.element.classList.contains("active")) {
+
+                    if (piece.element.classList.contains("transit")) {
+                        piece.element.classList.remove("transit");
+                        clearTimeout(piece.timeout);
+                    }
 
                     if (dom.mobile) {
                         offset = new geometry.Vector(squareSize / 2, squareSize / 2);
@@ -110,7 +135,7 @@ module.exports = (function() {
                                 if (square) {
                                     square.classList.add("active");
                                     for (var i = state.pieces.length, p; p = state.pieces[-- i];) { // Iterate through pieces
-                                        if (p.pos.equals(tile)) { // If piece tile is already taken:
+                                        if (tile.equals(p.pos)) { // If piece tile is already taken:
                                             friend = p.color === piece.color;
                                             break;
                                         }
@@ -136,11 +161,13 @@ module.exports = (function() {
                         if (tile) {
                             getSquare(tile).classList.remove("active", "friend", "foe");
                             for (var i = state.pieces.length, p; p = state.pieces[-- i];) { // Iterate through pieces
-                                if (p.pos.equals(tile)) { // If piece tile is already taken:
+                                if (tile.equals(p.pos)) { // If piece tile is already taken:
                                     if (p.color !== piece.color) { // If piece is an enemy:
                                         // Move is valid; capture the opposing piece.
-                                        getSquare(p.pos).removeChild(p.element);
-                                        state.pieces.splice(i, 1);
+                                        p.unlisten();
+                                        document.querySelector(".captured .row."+p.color).appendChild(getSquare(p.pos).removeChild(p.element));
+                                        p.pos = null;
+                                        p.square = null;
                                         piece.moved = true;
                                     } else {
                                         // Move is invalid; revert to initial tile
@@ -157,12 +184,19 @@ module.exports = (function() {
                         piece.element.classList.add("transit");
                         piece.pos = tile;
                         piece.update();
-                        setTimeout(function(){
-                            piece.element.classList.remove("transit");
+                        piece.callback = function(moving){
+
                             piece.square = getSquare(tile);
-                            piece.square.appendChild(board.removeChild(piece.element));
-                            piece.element.style = "";
-                        }, 250);
+                            if (piece.element.parentNode === board)
+                                board.removeChild(piece.element);
+                            piece.square.appendChild(piece.element);
+                            piece.element.classList.remove("transit");
+                            piece.element.style.left = 0;
+                            piece.element.style.top = 0;
+                            piece.timeout = null;
+                            piece.callback = null;
+                        }
+                        piece.timeout = setTimeout(piece.callback, 250);
                         event.preventDefault();
                     }
 
@@ -174,15 +208,18 @@ module.exports = (function() {
                     getSquare(tile).classList.add("active");
                     piece.element.classList.add("active");
 
-                    board.appendChild(piece.square.removeChild(piece.element));
+                    if (piece.element.parentNode === piece.square)
+                        board.appendChild(piece.square.removeChild(piece.element));
                 }
                 event.preventDefault();
             }
-            dom.addEvent.call(piece.element, "touchstart", start);
-            dom.addEvent.call(piece.element, "mousedown",  start);
-            dom.addEvent.call(piece.element, "dragstart",  function() {
-                return false;
-            });
+            dom.addEvent.call(this.element, "touchstart", this.listener);
+            dom.addEvent.call(this.element, "mousedown",  this.listener);
+            return this;
+        },
+        unlisten: function() {
+            dom.removeEvent.call(this.element, "touchstart", this.listener);
+            dom.removeEvent.call(this.element, "mousedown",  this.listener);
             return this;
         },
         update: function() {
@@ -200,31 +237,34 @@ module.exports = (function() {
             dom.addEvent.call(window, "orientationchange", resize);
         },
         reset: function() {
-            for (var i = state.pieces.length, p; p = state.pieces[-- i];) {
-                p.element.parentNode.removeChild(p.element);
-            }
-            state.pieces = [];
-            var type, color;
-            for (var y = 8; y --;) {
-                for (var x = 8; x --;) {
-                    type = null;
-                    color = null;
-                    if (y == 1 || y == 6) {
-                        type = "pawn";
-                    } else if (y == 0 || y == 7) {
-                        if (x == 0 || x == 7)
-                            type = "rook";
-                        if (x == 1 || x == 6)
-                            type = "knight";
-                        if (x == 2 || x == 5)
-                            type = "bishop";
-                        if (x == 3)
-                            type = "queen";
-                        if (x == 4)
-                            type = "king";
+            if (!state.pieces) {
+                state.pieces = [];
+                var type, color;
+                for (var y = 8; y --;) {
+                    for (var x = 8; x --;) {
+                        type = null;
+                        color = null;
+                        if (y == 1 || y == 6) {
+                            type = "pawn";
+                        } else if (y == 0 || y == 7) {
+                            if (x == 0 || x == 7)
+                                type = "rook";
+                            if (x == 1 || x == 6)
+                                type = "knight";
+                            if (x == 2 || x == 5)
+                                type = "bishop";
+                            if (x == 3)
+                                type = "queen";
+                            if (x == 4)
+                                type = "king";
+                        }
+                        color = y <= 1 ? "black" : "white";
+                        type && color && new Piece(new geometry.Vector(x, y), type, color).init();
                     }
-                    color = y <= 1 ? "black" : "white";
-                    type && color && new Piece(new geometry.Vector(x, y), type, color).init();
+                }
+            } else {
+                for (var i = state.pieces.length, p; p = state.pieces[-- i];) {
+                    p.reset();
                 }
             }
         },
@@ -238,12 +278,13 @@ module.exports = (function() {
     function addEvent(type, callback) {
         if (!this) return;
         if (this.addEventListener) {
-            this.addEventListener(type, callback, false);
+            this.addEventListener(type,  callback, false);
         } else if (this.attachEvent) {
             this.attachEvent("on" + type, callback);
         } else {
             this["on" + type] = callback;
         }
+        return callback;
     }
     function removeEvent(type, callback) {
         if (!this) return;
