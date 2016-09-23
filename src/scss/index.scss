@@ -66,6 +66,10 @@ button {
     }
 }
 
+ul.svg {
+    display: none;
+}
+
 .wrap {
     display: table;
     position: relative;
@@ -117,12 +121,12 @@ button {
                     }
                     .piece {
                         position: absolute;
-                        left: 0;
-                        top: 0;
-                        right: 0;
-                        bottom: 0;
-                        &:hover {
-                            cursor: grab;
+                        width: 100%;
+                        height: 100%;
+                        path {
+                            &:hover {
+                                cursor: grab;
+                            }
                         }
                     }
                 }
@@ -187,47 +191,47 @@ button {
 }
 
 .piece {
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    &.white {
-        &.king {
-            background-image: url(../img/white-king.svg);
-        }
-        &.queen {
-            background-image: url(../img/white-queen.svg);
-        }
-        &.bishop {
-            background-image: url(../img/white-bishop.svg);
-        }
-        &.knight {
-            background-image: url(../img/white-knight.svg);
-        }
-        &.rook {
-            background-image: url(../img/white-rook.svg);
-        }
-        &.pawn {
-            background-image: url(../img/white-pawn.svg);
-        }
-    }
-    &.black {
-        &.king {
-            background-image: url(../img/black-king.svg);
-        }
-        &.queen {
-            background-image: url(../img/black-queen.svg);
-        }
-        &.bishop {
-            background-image: url(../img/black-bishop.svg);
-        }
-        &.knight {
-            background-image: url(../img/black-knight.svg);
-        }
-        &.rook {
-            background-image: url(../img/black-rook.svg);
-        }
-        &.pawn {
-            background-image: url(../img/black-pawn.svg);
-        }
-    }
+    // background-position: center;
+    // background-repeat: no-repeat;
+    // background-size: cover;
+    // &.white {
+    //     &.king {
+    //         background-image: url(../img/white-king.svg);
+    //     }
+    //     &.queen {
+    //         background-image: url(../img/white-queen.svg);
+    //     }
+    //     &.bishop {
+    //         background-image: url(../img/white-bishop.svg);
+    //     }
+    //     &.knight {
+    //         background-image: url(../img/white-knight.svg);
+    //     }
+    //     &.rook {
+    //         background-image: url(../img/white-rook.svg);
+    //     }
+    //     &.pawn {
+    //         background-image: url(../img/white-pawn.svg);
+    //     }
+    // }
+    // &.black {
+    //     &.king {
+    //         background-image: url(../img/black-king.svg);
+    //     }
+    //     &.queen {
+    //         background-image: url(../img/black-queen.svg);
+    //     }
+    //     &.bishop {
+    //         background-image: url(../img/black-bishop.svg);
+    //     }
+    //     &.knight {
+    //         background-image: url(../img/black-knight.svg);
+    //     }
+    //     &.rook {
+    //         background-image: url(../img/black-rook.svg);
+    //     }
+    //     &.pawn {
+    //         background-image: url(../img/black-pawn.svg);
+    //     }
+    // }
 }

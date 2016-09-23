@@ -1,3 +1,5 @@
+include mixins
+
 doctype
 html
     head
@@ -5,6 +7,19 @@ html
         link(rel="stylesheet" type="text/css" href="css/index.css")
         meta(name="viewport" content="width=device-width, initial-scale=1.0")
     body
+        ul.svg
+            include ../img/white-pawn.svg
+            include ../img/white-bishop.svg
+            include ../img/white-knight.svg
+            include ../img/white-rook.svg
+            include ../img/white-queen.svg
+            include ../img/white-king.svg
+            include ../img/black-pawn.svg
+            include ../img/black-bishop.svg
+            include ../img/black-knight.svg
+            include ../img/black-rook.svg
+            include ../img/black-queen.svg
+            include ../img/black-king.svg
         .wrap
             .board-wrap
                 canvas(width=1 height=1)
@@ -22,4 +37,5 @@ html
                     .captured
                         .white.row
                         .black.row
+        script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js")
         script(src="js/index.js")
