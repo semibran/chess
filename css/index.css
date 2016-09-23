@@ -57,6 +57,9 @@ button {
     -webkit-transform: scale(1.5);
             transform: scale(1.5); } }
 
+ul.svg {
+  display: none; }
+
 .wrap {
   display: table;
   position: relative;
@@ -102,11 +105,9 @@ button {
             background: rgba(0, 255, 0, 0.25); }
           .wrap .board-wrap .board .row .square .piece {
             position: absolute;
-            left: 0;
-            top: 0;
-            right: 0;
-            bottom: 0; }
-            .wrap .board-wrap .board .row .square .piece:hover {
+            width: 100%;
+            height: 100%; }
+            .wrap .board-wrap .board .row .square .piece path:hover {
               cursor: -webkit-grab;
               cursor: grab; }
         .wrap .board-wrap .board .row:nth-child(odd) .square:nth-child(even), .wrap .board-wrap .board .row:nth-child(even) .square:nth-child(odd) {
@@ -158,32 +159,3 @@ button {
       height: 20px;
       display: inline-block;
       vertical-align: middle; }
-
-.piece {
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover; }
-  .piece.white.king {
-    background-image: url(../img/white-king.svg); }
-  .piece.white.queen {
-    background-image: url(../img/white-queen.svg); }
-  .piece.white.bishop {
-    background-image: url(../img/white-bishop.svg); }
-  .piece.white.knight {
-    background-image: url(../img/white-knight.svg); }
-  .piece.white.rook {
-    background-image: url(../img/white-rook.svg); }
-  .piece.white.pawn {
-    background-image: url(../img/white-pawn.svg); }
-  .piece.black.king {
-    background-image: url(../img/black-king.svg); }
-  .piece.black.queen {
-    background-image: url(../img/black-queen.svg); }
-  .piece.black.bishop {
-    background-image: url(../img/black-bishop.svg); }
-  .piece.black.knight {
-    background-image: url(../img/black-knight.svg); }
-  .piece.black.rook {
-    background-image: url(../img/black-rook.svg); }
-  .piece.black.pawn {
-    background-image: url(../img/black-pawn.svg); }

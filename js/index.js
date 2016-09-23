@@ -1,32 +1,31 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports = (function() {
     var geometry = require("./geometry"),
-        dom = require("./dom"),
-        board = document.querySelector(".board"),
-        boardSize = 0,
-        squareSize = 0,
+        $board = $(".board"),
         state = {
             pieces: null,
         },
+        config = {
+            path: "./"
+        },
         files = "abcdefgh",
         ranks = "12345678",
-        types = [
-            { name: "pawn",   symbol: "" },
-            { name: "bishop", symbol: "B" },
-            { name: "knight", symbol: "N" },
-            { name: "rook",   symbol: "R" },
-            { name: "queen",  symbol: "Q" },
-            { name: "king",   symbol: "K" }
-        ];
-
-    function resize() {
-        var dimensions = [Math.max(document.documentElement.clientWidth, window.innerWidth || 0), Math.max(document.documentElement.clientHeight, window.innerHeight || 0)];
-        boardSize = parseFloat(board.getBoundingClientRect().width);
-        squareSize = boardSize / 8;
-        // for (var i = state.pieces.length, p; p = state.pieces[-- i];) {
-        //     p.update();
-        // }
-    }
+        presets = {
+            board: {
+                size: 8
+            },
+            pieces: {
+                P: "pawn",
+                B: "bishop",
+                N: "knight",
+                R: "rook",
+                Q: "queen",
+                K: "king"
+            },
+            symbols: []
+        },
+        setup = "RNBQKBNRPPPPPPPP                                PPPPPPPPRNBQKBNR",
+        mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
     function getSquare(x, y) {
         if (x === null || y === null || x < 0 || x > 7 || y < 0 || y > 7) return null;
@@ -34,7 +33,7 @@ module.exports = (function() {
             y = x.y;
             x = x.x;
         }
-        return board.children[y].children[x];
+        return $($board[0].children[y].children[x]);
     }
 
     function Piece(pos, type, color) {
@@ -45,17 +44,15 @@ module.exports = (function() {
         this.color = color;
         this.moved = null;
         this.listener = null;
-        this.element = element = document.createElement("div");
-        this.element.className = "piece "+color+" "+type;
+        this.element = document.querySelector(".svg .chess.piece."+color+"."+type).cloneNode(true);
+        this.$element = $(this.element);
+        this.hitbox = this.element.querySelectorAll("path");
     }
 
     Piece.prototype = {
         init: function(){
             state.pieces.push(this);
             this.reset();
-            dom.addEvent.call(this.element, "dragstart",  function() {
-                return false;
-            }, this);
             return this;
         },
         reset: function() {
@@ -64,27 +61,26 @@ module.exports = (function() {
             this.square = getSquare(this.pos);
             if (this.element.parentNode)
                 this.element.parentNode.removeChild(this.element);
-            this.square.appendChild(this.element);
+            this.square.append(this.element);
             this.listen();
             return this;
         },
         listen: function() {
-            var piece = this;
             this.listener = function(event) {
-                var rect = board.getBoundingClientRect(),
+                var size = $board.width() / presets.board.size,
+                    piece = event.data.piece,
+                    position = $board.offset(),
                     input, inputEnd, offset, pos, initTile, tile, lastTile;
 
-                // console.log("Click!");
+                if (!piece.$element.hasClass("active")) {
 
-                if (!piece.element.classList.contains("active")) {
-
-                    if (piece.element.classList.contains("transit")) {
-                        piece.element.classList.remove("transit");
+                    if (piece.$element.hasClass("transit")) {
+                        piece.$element.removeClass("transit");
                         clearTimeout(piece.timeout);
                     }
 
-                    if (dom.mobile) {
-                        offset = new geometry.Vector(squareSize / 2, squareSize / 2);
+                    if (mobile) {
+                        offset = new geometry.Vector(size / 2, size / 2);
                         input = "touch";
                         inputEnd = "end";
                     } else {
@@ -94,7 +90,7 @@ module.exports = (function() {
                     }
 
                     function getPos(event) {
-                        return new geometry.Vector(event.pageX - rect.left, event.pageY - rect.top);
+                        return new geometry.Vector(event.pageX - position.left, event.pageY - position.top);
                     }
 
                     function getTile(event) {
@@ -108,21 +104,23 @@ module.exports = (function() {
                         } else {
                             posTemp = pos;
                         }
-                        x = Math.floor(posTemp.x / squareSize);
-                        y = Math.floor(posTemp.y / squareSize);
+                        x = Math.floor(posTemp.x / size);
+                        y = Math.floor(posTemp.y / size);
                         if (x < 0 || x > 7) x = null;
                         if (y < 0 || y > 7) y = null;
                         return x !== null && y !== null ? new geometry.Vector(x, y) : null;
                     }
 
                     function move(event) {
+                        var piece = event.data.piece;
+
                         if (tile) {
                             if (!lastTile) lastTile = [];
                             lastTile = tile.clone();
                         }
                         pos = getPos(event);
                         tile = getTile();
-                        piece.pos = pos.subtracted(offset).scaled(1/squareSize);
+                        piece.pos = pos.subtracted(offset).scaled(1/size);
                         piece.update();
                         if (lastTile) {
                             if (!lastTile.equals(tile)) {
@@ -131,9 +129,10 @@ module.exports = (function() {
                                     friend     = null,
                                     name;
                                 if (lastSquare)
-                                    lastSquare.classList.remove("active", "friend", "foe");
+                                    $(lastSquare).removeClass("active", "friend", "foe");
                                 if (square) {
-                                    square.classList.add("active");
+                                    $(square).addClass("active");
+
                                     for (var i = state.pieces.length, p; p = state.pieces[-- i];) { // Iterate through pieces
                                         if (tile.equals(p.pos)) { // If piece tile is already taken:
                                             friend = p.color === piece.color;
@@ -148,24 +147,26 @@ module.exports = (function() {
                                     }
 
                                     if (name)
-                                        square.classList.add(name);
+                                        $(square).addClass(name);
                                 }
                             }
                         }
                         event.preventDefault();
+
+
                     }
 
                     function end(event) {
-                        dom.removeEvent.call(document, input + "move", move);
-                        dom.removeEvent.call(document, input + inputEnd, end);
+                        var piece = event.data.piece;
+                        $(document).off(input + "move", move).off(input + inputEnd, end)
                         if (tile) {
-                            getSquare(tile).classList.remove("active", "friend", "foe");
+                            getSquare(tile).removeClass("active", "friend", "foe");
                             for (var i = state.pieces.length, p; p = state.pieces[-- i];) { // Iterate through pieces
                                 if (tile.equals(p.pos)) { // If piece tile is already taken:
                                     if (p.color !== piece.color) { // If piece is an enemy:
                                         // Move is valid; capture the opposing piece.
                                         p.unlisten();
-                                        document.querySelector(".captured .row."+p.color).appendChild(getSquare(p.pos).removeChild(p.element));
+                                        $(".captured .row."+p.color)[0].appendChild(getSquare(p.pos)[0].removeChild(p.element));
                                         p.pos = null;
                                         p.square = null;
                                         piece.moved = true;
@@ -180,19 +181,21 @@ module.exports = (function() {
                             tile = initTile;
                         }
 
-                        piece.element.classList.remove("active");
-                        piece.element.classList.add("transit");
+                        piece.$element.removeClass("active");
+                        piece.$element.addClass("transit");
                         piece.pos = tile;
                         piece.update();
                         piece.callback = function(moving){
 
                             piece.square = getSquare(tile);
-                            if (piece.element.parentNode === board)
-                                board.removeChild(piece.element);
-                            piece.square.appendChild(piece.element);
-                            piece.element.classList.remove("transit");
-                            piece.element.style.left = 0;
-                            piece.element.style.top = 0;
+                            if (piece.element.parentNode === $board[0])
+                                $board[0].removeChild(piece.element);
+                            piece.square.append(piece.element);
+                            piece.$element.removeClass("transit");
+                            piece.$element.css({
+                                left: 0,
+                                top: 0
+                            });
                             piece.timeout = null;
                             piece.callback = null;
                         }
@@ -202,29 +205,30 @@ module.exports = (function() {
 
                     move(event);
 
-                    dom.addEvent.call(document, input + "move", move);
-                    dom.addEvent.call(document, input + inputEnd, end);
+                    $(document).on(input + "move", event.data, move).on(input + inputEnd, event.data, end);
                     initTile = tile;
-                    getSquare(tile).classList.add("active");
-                    piece.element.classList.add("active");
 
-                    if (piece.element.parentNode === piece.square)
-                        board.appendChild(piece.square.removeChild(piece.element));
+                    getSquare(tile).addClass("active");
+                    piece.$element.addClass("active");
+
+                    if (piece.element.parentNode === piece.square[0])
+                        $board[0].appendChild(piece.square[0].removeChild(piece.element));
                 }
                 event.preventDefault();
             }
-            dom.addEvent.call(this.element, "touchstart", this.listener);
-            dom.addEvent.call(this.element, "mousedown",  this.listener);
+            $(this.hitbox).on("mousedown touchstart", {piece: this}, this.listener);
             return this;
         },
         unlisten: function() {
-            dom.removeEvent.call(this.element, "touchstart", this.listener);
-            dom.removeEvent.call(this.element, "mousedown",  this.listener);
+            $(this.hitbox).off("mousedown touchstart", this.listener);
             return this;
         },
         update: function() {
-            this.element.style.left = this.pos.x * squareSize + "px";
-            this.element.style.top  = this.pos.y * squareSize + "px";
+            var size = $board.width() / presets.board.size;
+            this.$element.css({
+                left: this.pos.x * size,
+                top: this.pos.y * size
+            });
             return this;
         }
     };
@@ -232,35 +236,27 @@ module.exports = (function() {
     return {
         init: function() {
             this.reset();
-            resize();
-            dom.addEvent.call(window, "resize", resize);
-            dom.addEvent.call(window, "orientationchange", resize);
         },
         reset: function() {
+            this.parse(setup);
+        },
+        config: function(data) {
+            for (var prop in data) {
+                if (data.hasOwnProperty(prop)) {
+                    config[prop] = data[prop];
+                }
+            }
+        },
+        parse: function(data) {
+            state.data = data;
             if (!state.pieces) {
                 state.pieces = [];
-                var type, color;
-                for (var y = 8; y --;) {
-                    for (var x = 8; x --;) {
-                        type = null;
-                        color = null;
-                        if (y == 1 || y == 6) {
-                            type = "pawn";
-                        } else if (y == 0 || y == 7) {
-                            if (x == 0 || x == 7)
-                                type = "rook";
-                            if (x == 1 || x == 6)
-                                type = "knight";
-                            if (x == 2 || x == 5)
-                                type = "bishop";
-                            if (x == 3)
-                                type = "queen";
-                            if (x == 4)
-                                type = "king";
-                        }
-                        color = y <= 1 ? "black" : "white";
-                        type && color && new Piece(new geometry.Vector(x, y), type, color).init();
-                    }
+                for (var i = 0, x, y, char, type, color; char = state.data[i]; i ++) {
+                    x = i % presets.board.size;
+                    y = (i - x) / presets.board.size;
+                    type = presets.pieces[char];
+                    color = y > presets.board.size / 2 ? "white" : "black";
+                    type && new Piece(new geometry.Vector(x, y), type, color).init();
                 }
             } else {
                 for (var i = state.pieces.length, p; p = state.pieces[-- i];) {
@@ -272,48 +268,19 @@ module.exports = (function() {
     };
 })();
 
-},{"./dom":2,"./geometry":4}],2:[function(require,module,exports){
-module.exports = (function() {
-    var mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    function addEvent(type, callback) {
-        if (!this) return;
-        if (this.addEventListener) {
-            this.addEventListener(type,  callback, false);
-        } else if (this.attachEvent) {
-            this.attachEvent("on" + type, callback);
-        } else {
-            this["on" + type] = callback;
-        }
-        return callback;
-    }
-    function removeEvent(type, callback) {
-        if (!this) return;
-        if (this.removeEventListener) {
-            this.removeEventListener(type, callback, false);
-        } else if (this.detachEvent) {
-            this.detachEvent("on" + type, callback);
-        } else {
-            this["on" + type] = null;
-        }
-    }
-    mobile && document.body.classList.add("mobile");
-    return {
-        mobile: mobile,
-        addEvent: addEvent,
-        removeEvent: removeEvent
-    };
-})();
-
-},{}],3:[function(require,module,exports){
+},{"./geometry":3}],2:[function(require,module,exports){
 var chess = require("./chess");
 
+chess.config({
+    path: "../img/"
+});
 chess.init();
 
 document.querySelector("button").onclick = function(){
     chess.reset();
 };
 
-},{"./chess":1}],4:[function(require,module,exports){
+},{"./chess":1}],3:[function(require,module,exports){
 module.exports = (function(){
     function Vector(x, y){
         this.x = x;
@@ -588,4 +555,4 @@ module.exports = (function(){
     };
 })();
 
-},{}]},{},[3])
+},{}]},{},[2])
